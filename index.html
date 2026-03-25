@@ -12,15 +12,20 @@
   <style>
     * { font-family: 'Inter', sans-serif; }
 
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      overflow-x: hidden;
+    }
+
     :root {
       --page-gutter: clamp(12px, 3.5vw, 20px);
     }
 
     body {
-      margin: 0;
       min-height: 100svh;
       background: #3b5fc0;
-      overflow-x: hidden;
     }
 
     .glass-card {
@@ -124,11 +129,6 @@
     }
 
     @media (max-width: 640px) {
-      .popup-overlay {
-        padding: var(--page-gutter);
-        align-items: flex-end;
-      }
-
       .popup-box {
         border-radius: 1.25rem;
       }
