@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mihriban</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet" />
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+
+    :root {
+      --page-gutter: clamp(12px, 3.5vw, 20px);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      background: #3b5fc0;
+      overflow-x: hidden;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-click {
+      background: linear-gradient(135deg, #ffffff22 0%, #ffffff44 100%);
+      border: 1.5px solid rgba(255,255,255,0.5);
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      backdrop-filter: blur(8px);
+    }
+    .btn-click:hover {
+      background: linear-gradient(135deg, #ffffff44 0%, #ffffff66 100%);
+      border-color: rgba(255,255,255,0.85);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+    .btn-click:active {
+      transform: translateY(0px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .heartbeat {
+      display: inline-block;
+      animation: heartbeat 1.4s ease-in-out infinite;
+    }
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      14%       { transform: scale(1.25); }
+      28%       { transform: scale(1); }
+      42%       { transform: scale(1.18); }
+      56%       { transform: scale(1); }
+    }
+
+    .sparkle {
+      animation: sparkle 2s ease-in-out infinite;
+    }
+    @keyframes sparkle {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    /* Popup overlay */
+    .popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      animation: fadeIn 0.2s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    .popup-box {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.35);
+      border-radius: 1.75rem;
+      padding: clamp(1.25rem, 4vw, 2.5rem) clamp(1rem, 4vw, 2rem);
+      max-width: 360px;
+      width: min(92vw, 360px);
+      text-align: center;
+      animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.75) translateY(20px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .popup-close {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.4);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .popup-close:hover {
+      background: rgba(255,255,255,0.35);
+      transform: scale(1.04);
+    }
+
+    @media (max-width: 640px) {
+      .popup-overlay {
+        padding: var(--page-gutter);
+        align-items: flex-end;
+      }
+
+      .popup-box {
+        border-radius: 1.25rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    function Sparkles() {
+      const dots = [
+        { top: '12%', left: '8%',  delay: '0s',   size: 6 },
+        { top: '20%', left: '88%', delay: '0.5s', size: 8 },
+        { top: '70%', left: '5%',  delay: '1s',   size: 5 },
+        { top: '80%', left: '90%', delay: '1.5s', size: 7 },
+        { top: '40%', left: '92%', delay: '0.8s', size: 4 },
+        { top: '60%', left: '3%',  delay: '0.3s', size: 6 },
+      ];
+      return (
+        <>
+          {dots.map((d, i) => (
+            <div key={i} className="sparkle fixed pointer-events-none"
+              style={{ top: d.top, left: d.left, animationDelay: d.delay }}>
+              <svg width={d.size * 2} height={d.size * 2} viewBox="0 0 24 24">
+                <polygon points="12,2 14,10 22,12 14,14 12,22 10,14 2,12 10,10"
+                  fill="rgba(255,255,255,0.7)" />
+              </svg>
+            </div>
+          ))}
+        </>
+      );
+    }
+
+    function Popup({ onClose }) {
+      return (
+        <div className="popup-overlay" onClick={onClose}>
+          <div className="popup-box" onClick={e => e.stopPropagation()}>
+            {/* Icon */}
+            <div className="text-5xl mb-4">🌙</div>
+
+            <h2 className="text-white font-black text-3xl leading-snug mb-2">
+              Yarın görüşürüz
+            </h2>
+
+            <p className="text-white/75 text-base mb-6">
+              Seviliyorsun <span className="heartbeat text-red-400 inline-block">❤</span>
+            </p>
+
+            <button
+              onClick={onClose}
+              className="popup-close px-6 py-2.5 rounded-xl text-sm w-full"
+            >
+              Tamam ✨
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      const [popupOpen, setPopupOpen] = useState(false);
+
+      return (
+        <div className="min-h-[100svh] flex items-center justify-center px-[var(--page-gutter)] py-6 sm:py-12 relative overflow-hidden">
+          {/* <Sparkles /> */}
+
+          {popupOpen && <Popup onClose={() => setPopupOpen(false)} />}
+
+          <div className="glass-card rounded-[1.4rem] sm:rounded-3xl p-5 sm:p-10 max-w-md w-full text-center relative z-10">
+
+
+            {/* Main message */}
+            <h1 className="text-white font-black text-[1.35rem] sm:text-2xl leading-snug mb-3">
+              Sivas kangalıyla tanıştığım için<br />
+              <span className="text-yellow-200">çok şanslıyım</span>
+            </h1>
+
+            <p className="text-white/80 text-base sm:text-lg font-medium mb-6 sm:mb-8">
+              Seviliyorsun{' '}
+              <span className="heartbeat text-red-400">❤</span>
+            </p>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3 mb-5 sm:mb-7">
+              <div className="flex-1 h-px bg-white/20"></div>
+              <span className="text-white/40 text-sm">✨</span>
+              <div className="flex-1 h-px bg-white/20"></div>
+            </div>
+
+            {/* Button */}
+            <button
+              onClick={() => setPopupOpen(true)}
+              className="btn-click px-6 sm:px-8 py-3.5 rounded-xl sm:rounded-2xl text-base w-full min-h-12"
+            >
+              Tıkla
+            </button>
+
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
